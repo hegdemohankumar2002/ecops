@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Cops | My Complaints</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root { --primary: #0ea5e9; --primary-hover: #0284c7; --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --sidebar-bg: rgba(15, 23, 42, 0.8); --text-main: #f8fafc; --text-muted: #94a3b8; --success: #22c55e; --border-color: rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; min-height: 100vh; display: flex; }
+        .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 25px 0; }
+        .logo { padding: 0 25px; font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; }
+        .nav-link { display: block; padding: 12px 25px; color: var(--text-muted); text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: rgba(14,165,233,0.1); color: var(--primary); }
+        .main-content { flex: 1; padding: 40px; }
+        .header { margin-bottom: 30px; } h1 { margin: 0 0 5px 0; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-muted); font-weight: 600; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+        .status-PENDING { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-FIR_FILED { background: rgba(14, 165, 233, 0.2); color: #0ea5e9; }
+        .status-REJECTED { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .alert { padding: 12px; background: rgba(34,197,94,0.1); color: var(--success); border-radius: 6px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">E-Cops Citizen</div>
+        <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
+        <a href="/citizen/file-complaint" class="nav-link">File Complaint</a>
+        <a href="/citizen/my-complaints" class="nav-link active">Track Status</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>My Complaints</h1>
+            <p style="color: var(--text-muted);">Track the status of your filed complaints.</p>
+        </div>
+
+        <div th:if="${param.success}" class="alert" th:text="${param.success}"></div>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date Filed</th>
+                        <th>Station</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="complaint : ${complaints}">
+                        <td th:text="${#dates.format(complaint.filingDate, 'MMM dd, yyyy HH:mm')}">Date</td>
+                        <td th:text="${complaint.policeStation.name}">Station</td>
+                        <td th:text="${complaint.title}">Title</td>
+                        <td>
+                            <span th:class="'status-badge status-' + ${complaint.status}" th:text="${complaint.status}">STATUS</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(complaints)}">
+                        <td colspan="4" style="text-align: center; color: var(--text-muted);">You have not filed any complaints yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Cops | Magistrate Review</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root { --primary: #0ea5e9; --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --sidebar-bg: rgba(15, 23, 42, 0.8); --text-main: #f8fafc; --text-muted: #94a3b8; --border-color: rgba(255, 255, 255, 0.1); --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;}
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; min-height: 100vh; display: flex; }
+        .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 25px 0; }
+        .logo { padding: 0 25px; font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; }
+        .nav-link { display: block; padding: 12px 25px; color: var(--text-muted); text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: rgba(14,165,233,0.1); color: var(--primary); }
+        .main-content { flex: 1; padding: 40px; }
+        .header { margin-bottom: 30px; } h1 { margin: 0 0 5px 0; }
+        .grid { display: grid; gap: 20px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;}
+        .card-title { font-size: 1.2em; font-weight: 600; margin: 0 0 5px 0; }
+        .meta { font-size: 0.85em; color: var(--text-muted); }
+        .desc { line-height: 1.5; margin-bottom: 10px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
+        .actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em; }
+        .btn-success { background: rgba(34, 197, 94, 0.1); color: var(--success); border: 1px solid var(--success); }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-success:hover { background: var(--success); color: white; }
+        .btn-danger:hover { background: var(--danger); color: white; }
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+        .badge-PENDING { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-APPROVED { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-DENIED { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .alert { padding: 12px; background: rgba(34,197,94,0.1); color: var(--success); border-radius: 6px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">E-Cops Judicial</div>
+        <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
+        <a href="/magistrate/cases" class="nav-link active">Review Cases & Warrants</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Case Review & Warrants</h1>
+            <p style="color: var(--text-muted);">Review filed cases and provide or deny arrest warrants.</p>
+        </div>
+
+        <div th:if="${param.success}" class="alert" th:text="${param.success}"></div>
+
+        <div class="grid">
+            <div th:each="c : ${cases}" class="card">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title" th:text="'CASE-' + ${c.id} + ': ' + ${c.complaint.title}">Title</h3>
+                        <div class="meta">
+                            Station: <span th:text="${c.complaint.policeStation.name}"></span> | 
+                            Last Updated: <span th:text="${#dates.format(c.lastUpdated, 'MMM dd, yyyy')}"></span>
+                        </div>
+                    </div>
+                    <div>
+                        Warrant Status: <span th:class="'badge badge-' + ${c.warrantStatus}" th:text="${c.warrantStatus}">STATUS</span>
+                    </div>
+                </div>
+                
+                <div class="desc">
+                    <strong style="color: var(--primary);">FIR Details:</strong><br/>
+                    <span th:text="${c.firDetails}">FIR Notes</span>
+                </div>
+                <div class="desc" th:if="${c.chargeSheet}">
+                    <strong style="color: var(--primary);">Charge Sheet:</strong><br/>
+                    <span th:text="${c.chargeSheet}">Details</span>
+                </div>
+                
+                <div class="actions" th:if="${c.warrantStatus.name() == 'PENDING'}">
+                    <form th:action="@{/magistrate/cases/{id}/warrant(id=${c.id})}" method="post">
+                        <input type="hidden" name="status" value="APPROVED">
+                        <button type="submit" class="btn btn-success">Approve Warrant</button>
+                    </form>
+                    
+                    <form th:action="@{/magistrate/cases/{id}/warrant(id=${c.id})}" method="post">
+                        <input type="hidden" name="status" value="DENIED">
+                        <button type="submit" class="btn btn-danger">Deny Warrant</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(cases)}" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                No active cases available for review.
+            </div>
+        </div>
+    </main>
+</body>
+</html>

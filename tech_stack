@@ -1,0 +1,60 @@
+Core Stack
+🔹 Backend
+Java 17
+Spring Boot
+Spring Web (Spring MVC)
+Spring Data JPA (Hibernate)
+
+👉 Handles:
+
+Controllers (HTTP requests)
+Business logic
+Database interaction (ORM)
+🔹 Database
+MySQL (or PostgreSQL)
+
+👉 Stores:
+
+Users
+Complaints
+Police Stations
+Criminal Records
+🔹 ORM Layer
+Hibernate (via Spring Data JPA)
+
+👉 Converts:
+
+Java Objects ↔ Database Tables
+🔹 Frontend
+Thymeleaf
+
+👉 Server-side rendering:
+
+HTML + Dynamic Data from Backend
+🔹 Build Tool
+Maven
+
+👉 Manages:
+
+Dependencies
+Build lifecycle
+🔹 Development Tools
+VS Code (current)
+Eclipse (later import)
+🧩 Architecture Style
+MVC (Model-View-Controller)
+Controller → handles requests
+Service    → (optional) business logic
+Repository → DB access
+Entity     → data model
+View       → Thymeleaf HTML
+🔐 Authentication (Current Level)
+Basic login (manual check)
+No JWT (skipped due to time constraint)
+🚀 What This Stack Enables
+
+✔ Multi-user system (Citizen, Officer, Admin)
+✔ Complaint tracking workflow
+✔ CRUD operations (core requirement)
+✔ Database-driven system
+✔ Web interface (not CLI)

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Cops | Assign Officers</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --sidebar-bg: rgba(15, 23, 42, 0.8);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 25px 0; }
+        .logo { padding: 0 25px; font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; }
+        .nav-link { display: block; padding: 12px 25px; color: var(--text-muted); text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: rgba(14,165,233,0.1); color: var(--primary); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 40px; max-width: 800px; }
+        .header { margin-bottom: 30px; }
+        h1 { margin: 0 0 10px 0; }
+        
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; margin-bottom: 30px; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 600; font-size: 0.9em; }
+        .form-control { width: 100%; padding: 12px; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 8px; color: white; box-sizing: border-box; }
+        select.form-control { appearance: none; }
+        
+        .btn { padding: 12px 25px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
+        .btn:hover { background: var(--primary-hover); }
+
+        .alert { padding: 12px; background: rgba(34,197,94,0.1); color: var(--success); border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">E-Cops Admin</div>
+        <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
+        <a href="/admin/stations" class="nav-link">Manage Stations</a>
+        <a href="/admin/assign-officers" class="nav-link active">Assign Officers</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Assign Personnel</h1>
+            <p style="color: var(--text-muted);">Appoint Police Officers and Detectives to specific Virtual Police Stations and Departments.</p>
+        </div>
+
+        <div th:if="${param.success}" class="alert" th:text="${param.success}"></div>
+
+        <div class="card">
+            <form th:action="@{/admin/assign-officers}" method="post">
+                <div class="form-group">
+                    <label>Select Officer / Detective</label>
+                    <select name="officerId" class="form-control" required>
+                        <option value="" disabled selected>-- Choose an Officer --</option>
+                        <option th:each="officer : ${officers}" 
+                                th:value="${officer.id}" 
+                                th:text="${officer.fullName} + ' (' + ${officer.role} + ')'">Officer Name</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Assign to Police Station</label>
+                    <select name="stationId" id="stationSelect" class="form-control" required onchange="updateDepartments()">
+                        <option value="" disabled selected>-- Choose a Station --</option>
+                        <option th:each="station : ${stations}" 
+                                th:value="${station.id}" 
+                                th:text="${station.name}">Station Name</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Specific Department (Optional)</label>
+                    <select name="departmentId" id="deptSelect" class="form-control">
+                        <option value="">-- General Station Assignment --</option>
+                        <!-- Dynamic population via JS would be better, but for Phase 2 we keep it simple -->
+                    </select>
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">* Departments will populate dynamically in a full SPA setup.</small>
+                </div>
+
+                <button type="submit" class="btn">Appoint Officer</button>
+            </form>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        /* Basic static mapping of stations to their departments to populate the dropdown on the fly */
+        var stationsData = /*[[${stations}]]*/ [];
+        
+        function updateDepartments() {
+            var stationId = document.getElementById('stationSelect').value;
+            var deptSelect = document.getElementById('deptSelect');
+            
+            // Clear existing options
+            deptSelect.innerHTML = '<option value="">-- General Station Assignment --</option>';
+            
+            // Find the station and add its departments
+            var station = stationsData.find(s => s.id == stationId);
+            if (station && station.departments) {
+                station.departments.forEach(function(dept) {
+                    var option = document.createElement('option');
+                    option.value = dept.id;
+                    option.text = dept.name;
+                    deptSelect.appendChild(option);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

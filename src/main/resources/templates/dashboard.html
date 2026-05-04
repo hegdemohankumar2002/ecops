@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Cops | Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --sidebar-bg: rgba(15, 23, 42, 0.8);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 25px 0;
+            z-index: 10;
+        }
+
+        .logo-area {
+            padding: 0 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 5px 20px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            padding: 20px 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--primary);
+            text-transform: capitalize;
+        }
+
+        .logout-btn {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            color: var(--danger);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .bg-blob {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, rgba(15,23,42,0) 70%);
+            top: -200px;
+            right: -200px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .date-display {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+            border-color: rgba(14, 165, 233, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .welcome-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(30,41,59,0.8) 0%, rgba(14,165,233,0.1) 100%);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .btn-action {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+        
+        .btn-action:hover {
+            background: var(--primary-hover);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo">E-<span>Cops</span></div>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/dashboard" class="nav-link active">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+            </li>
+            
+            <!-- Conditional Navigation based on Role -->
+            <li class="nav-item" th:if="${user.role.name() == 'CITIZEN'}">
+                <a href="/citizen/file-complaint" class="nav-link">
+                    <span class="nav-icon">📝</span> File Complaint
+                </a>
+            </li>
+            <li class="nav-item" th:if="${user.role.name() == 'CITIZEN'}">
+                <a href="/citizen/my-complaints" class="nav-link">
+                    <span class="nav-icon">🔍</span> Track Status
+                </a>
+            </li>
+            
+            <li class="nav-item" th:if="${user.role.name() == 'ADMINISTRATOR'}">
+                <a href="/admin/stations" class="nav-link">
+                    <span class="nav-icon">🏢</span> Manage Stations
+                </a>
+            </li>
+            <li class="nav-item" th:if="${user.role.name() == 'ADMINISTRATOR'}">
+                <a href="/admin/assign-officers" class="nav-link">
+                    <span class="nav-icon">👮</span> Assign Officers
+                </a>
+            </li>
+
+            <li class="nav-item" th:if="${user.role.name() == 'POLICE_OFFICER' or user.role.name() == 'DETECTIVE'}">
+                <a href="/officer/complaints" class="nav-link">
+                    <span class="nav-icon">🚨</span> View Complaints
+                </a>
+            </li>
+            <li class="nav-item" th:if="${user.role.name() == 'POLICE_OFFICER' or user.role.name() == 'DETECTIVE'}">
+                <a href="/officer/case-registry" class="nav-link">
+                    <span class="nav-icon">📁</span> Case Registry
+                </a>
+            </li>
+            <li class="nav-item" th:if="${user.role.name() == 'POLICE_OFFICER' or user.role.name() == 'DETECTIVE'}">
+                <a href="/officer/intelligence" class="nav-link">
+                    <span class="nav-icon">🔍</span> Intelligence Search
+                </a>
+            </li>
+            <li class="nav-item" th:if="${user.role.name() == 'POLICE_OFFICER' or user.role.name() == 'DETECTIVE'}">
+                <a href="/officer/forum" class="nav-link">
+                    <span class="nav-icon">💬</span> Internal Forum
+                </a>
+            </li>
+            
+            <li class="nav-item" th:if="${user.role.name() == 'MAGISTRATE'}">
+                <a href="/magistrate/cases" class="nav-link">
+                    <span class="nav-icon">⚖️</span> Review Cases
+                </a>
+            </li>
+        </ul>
+
+        <div class="user-profile">
+            <div class="avatar" th:text="${#strings.substring(user.fullName,0,1)}">U</div>
+            <div class="user-info">
+                <div class="user-name" th:text="${user.fullName}">User Name</div>
+                <div class="user-role" th:text="${user.role}">Role</div>
+            </div>
+            <a href="/logout" class="logout-btn" title="Logout">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="bg-blob"></div>
+        
+        <div class="header">
+            <h1 class="page-title">Overview</h1>
+            <div class="date-display" id="currentDate">Date</div>
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <!-- Welcome Card -->
+            <div class="card welcome-card">
+                <h2 style="margin-top: 0; font-size: 1.5rem;">Welcome back, <span th:text="${user.fullName}">User</span>!</h2>
+                <p class="card-desc" style="max-width: 600px; line-height: 1.6;">
+                    You are logged into the E-Cops system as a <strong th:text="${user.role}">Role</strong>. 
+                    Your session is secure. Navigate through the menu on the left to access your authorized modules.
+                </p>
+                <a href="#" class="btn-action">View Profile Settings</a>
+            </div>
+
+            <!-- Placeholder Cards -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Activity</h3>
+                    <div class="card-icon">⚡</div>
+                </div>
+                <div class="card-value">0</div>
+                <p class="card-desc">New notifications since last login</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">System Status</h3>
+                    <div class="card-icon" style="color: var(--success); background: rgba(34, 197, 94, 0.1);">🟢</div>
+                </div>
+                <div class="card-value">Optimal</div>
+                <p class="card-desc">All regional databases connected</p>
+            </div>
+            
+        </div>
+    </main>
+
+    <script>
+        // Set current date
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', dateOptions);
+    </script>
+</body>
+</html>

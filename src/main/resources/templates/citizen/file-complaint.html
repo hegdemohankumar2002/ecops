@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Cops | File Complaint</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root { --primary: #0ea5e9; --primary-hover: #0284c7; --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --sidebar-bg: rgba(15, 23, 42, 0.8); --text-main: #f8fafc; --text-muted: #94a3b8; --border-color: rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; min-height: 100vh; display: flex; }
+        .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 25px 0; }
+        .logo { padding: 0 25px; font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; }
+        .nav-link { display: block; padding: 12px 25px; color: var(--text-muted); text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: rgba(14,165,233,0.1); color: var(--primary); }
+        .main-content { flex: 1; padding: 40px; max-width: 800px; }
+        .header { margin-bottom: 30px; } h1 { margin: 0 0 5px 0; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; } label { display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 600; font-size: 0.9em; }
+        .form-control { width: 100%; padding: 12px; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 8px; color: white; box-sizing: border-box; }
+        select.form-control { appearance: none; }
+        textarea.form-control { resize: vertical; min-height: 150px; }
+        .btn { padding: 12px 25px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
+        .btn:hover { background: var(--primary-hover); }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">E-Cops Citizen</div>
+        <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
+        <a href="/citizen/file-complaint" class="nav-link active">File Complaint</a>
+        <a href="/citizen/my-complaints" class="nav-link">Track Status</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>File an Online Complaint</h1>
+            <p style="color: var(--text-muted);">Please provide details about the incident. Your report will be sent to the selected Police Station.</p>
+        </div>
+
+        <div class="card">
+            <form th:action="@{/citizen/file-complaint}" th:object="${complaint}" method="post">
+                <div class="form-group">
+                    <label>Incident Title</label>
+                    <input type="text" th:field="*{title}" class="form-control" required placeholder="Brief description of the incident">
+                </div>
+
+                <div class="form-group">
+                    <label>Select Police Station</label>
+                    <select name="stationId" class="form-control" required>
+                        <option value="" disabled selected>-- Choose Jurisdiction --</option>
+                        <option th:each="station : ${stations}" 
+                                th:value="${station.id}" 
+                                th:text="${station.name} + ' (' + ${station.district} + ')'">Station Name</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Detailed Description</label>
+                    <textarea th:field="*{description}" class="form-control" required placeholder="Provide all known details, time, date, location, and individuals involved..."></textarea>
+                </div>
+
+                <button type="submit" class="btn">Submit Complaint to Police</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

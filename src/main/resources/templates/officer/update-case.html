@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Cops | Update Case</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root { --primary: #0ea5e9; --primary-hover: #0284c7; --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --sidebar-bg: rgba(15, 23, 42, 0.8); --text-main: #f8fafc; --text-muted: #94a3b8; --border-color: rgba(255, 255, 255, 0.1); --success: #22c55e;}
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; min-height: 100vh; display: flex; }
+        .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 25px 0; }
+        .logo { padding: 0 25px; font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; }
+        .nav-link { display: block; padding: 12px 25px; color: var(--text-muted); text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: rgba(14,165,233,0.1); color: var(--primary); }
+        .main-content { flex: 1; padding: 40px; max-width: 800px; }
+        .header { margin-bottom: 30px; } h1 { margin: 0 0 5px 0; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; } label { display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 600; font-size: 0.9em; }
+        .form-control { width: 100%; padding: 12px; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 8px; color: white; box-sizing: border-box; }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        .btn { padding: 12px 25px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
+        .btn:hover { background: var(--primary-hover); }
+        .alert { padding: 12px; background: rgba(34,197,94,0.1); color: var(--success); border-radius: 8px; margin-bottom: 20px; }
+        .case-meta { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">E-Cops Officer</div>
+        <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
+        <a href="/officer/complaints" class="nav-link">Incoming Complaints</a>
+        <a href="/officer/case-registry" class="nav-link active">Case Registry</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <a href="/officer/case-registry" style="color: var(--primary); text-decoration: none;">&larr; Back to Registry</a>
+            <h1 th:text="'Update Case: CASE-' + ${caseFile.id}">Update Case</h1>
+        </div>
+
+        <div th:if="${param.success}" class="alert" th:text="${param.success}"></div>
+
+        <div class="card">
+            <div class="case-meta">
+                <p style="margin: 0 0 5px 0;"><strong>Incident:</strong> <span th:text="${caseFile.complaint.title}"></span></p>
+                <p style="margin: 0 0 5px 0;"><strong>Reported By:</strong> <span th:text="${caseFile.complaint.citizen.fullName}"></span></p>
+                <p style="margin: 0;"><strong>FIR Details:</strong> <span th:text="${caseFile.firDetails}"></span></p>
+            </div>
+
+            <form th:action="@{/officer/cases/{id}/update(id=${caseFile.id})}" th:object="${caseFile}" method="post">
+                <div class="form-group">
+                    <label>Charge Sheet Details</label>
+                    <textarea th:field="*{chargeSheet}" class="form-control" placeholder="Enter findings, evidence, and formal charges..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Property Seizure (if any)</label>
+                    <textarea th:field="*{propertySeizure}" class="form-control" placeholder="List confiscated items, vehicles, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Court Disposal Status</label>
+                    <input type="text" th:field="*{courtDisposalStatus}" class="form-control" placeholder="e.g. Pending Hearing, Convicted, Acquitted">
+                </div>
+
+                <button type="submit" class="btn">Save Case Updates</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

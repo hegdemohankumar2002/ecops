@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Cops | Internal Forum</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root { --primary: #0ea5e9; --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --sidebar-bg: rgba(15, 23, 42, 0.8); --text-main: #f8fafc; --text-muted: #94a3b8; --border-color: rgba(255, 255, 255, 0.1); --success: #22c55e;}
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; min-height: 100vh; display: flex; }
+        .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 25px 0; }
+        .logo { padding: 0 25px; font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; }
+        .nav-link { display: block; padding: 12px 25px; color: var(--text-muted); text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: rgba(14,165,233,0.1); color: var(--primary); }
+        .main-content { flex: 1; padding: 40px; }
+        .header { margin-bottom: 30px; } h1 { margin: 0 0 5px 0; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 20px;}
+        .form-control { width: 100%; padding: 12px; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 8px; color: white; box-sizing: border-box; margin-bottom: 15px;}
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        .btn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; font-size: 0.9em; font-weight: 600;}
+        .btn:hover { background: #0284c7; }
+        .post-item { border-bottom: 1px solid var(--border-color); padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .post-item:last-child { border-bottom: none; }
+        .post-title { font-size: 1.1em; font-weight: 600; margin: 0 0 5px 0; color: var(--primary); text-decoration: none; }
+        .post-title:hover { text-decoration: underline; }
+        .post-meta { font-size: 0.85em; color: var(--text-muted); }
+        .alert { padding: 12px; background: rgba(34,197,94,0.1); color: var(--success); border-radius: 6px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">E-Cops Intelligence</div>
+        <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
+        <a href="/officer/intelligence" class="nav-link">Intelligence Search</a>
+        <a href="/officer/forum" class="nav-link active">Internal Forum</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Internal Law Enforcement Forum</h1>
+            <p style="color: var(--text-muted);">Secure intelligence sharing for Officers and Detectives.</p>
+        </div>
+        
+        <div th:if="${param.success}" class="alert" th:text="${param.success}"></div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">Start a New Discussion</h3>
+            <form th:action="@{/officer/forum/new}" method="post">
+                <input type="text" name="title" class="form-control" required placeholder="Discussion Title (e.g. APB: Suspect in downtown area)">
+                <textarea name="content" class="form-control" required placeholder="Details..."></textarea>
+                <button type="submit" class="btn">Post to Forum</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">Recent Discussions</h3>
+            <div th:each="post : ${posts}" class="post-item">
+                <div>
+                    <a th:href="@{/officer/forum/{id}(id=${post.id})}" class="post-title" th:text="${post.title}">Title</a>
+                    <div class="post-meta">
+                        Posted by <strong th:text="${post.author.fullName}">Author</strong> 
+                        (<span th:text="${post.author.role}">Role</span>) 
+                        on <span th:text="${#dates.format(post.createdAt, 'MMM dd, HH:mm')}">Date</span>
+                    </div>
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.9em;">
+                    <span th:text="${#lists.size(post.replies)}">0</span> replies
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(posts)}" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                No discussions yet. Be the first to post!
+            </div>
+        </div>
+    </main>
+</body>
+</html>

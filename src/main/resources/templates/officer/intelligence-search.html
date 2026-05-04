@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Cops | Intelligence Search</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root { --primary: #0ea5e9; --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.7); --sidebar-bg: rgba(15, 23, 42, 0.8); --text-main: #f8fafc; --text-muted: #94a3b8; --border-color: rgba(255, 255, 255, 0.1); --success: #22c55e;}
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; min-height: 100vh; display: flex; }
+        .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 25px 0; }
+        .logo { padding: 0 25px; font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; }
+        .nav-link { display: block; padding: 12px 25px; color: var(--text-muted); text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: rgba(14,165,233,0.1); color: var(--primary); }
+        .main-content { flex: 1; padding: 40px; }
+        .header { margin-bottom: 30px; } h1 { margin: 0 0 5px 0; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 20px;}
+        
+        .search-container { display: flex; gap: 10px; margin-bottom: 30px; }
+        .search-input { flex: 1; padding: 15px; background: rgba(15,23,42,0.8); border: 2px solid var(--primary); border-radius: 8px; color: white; font-size: 1.1em; }
+        .btn { padding: 15px 30px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; font-size: 1.1em; font-weight: 600;}
+        .btn:hover { background: #0284c7; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-muted); font-weight: 600; }
+        .highlight { color: var(--primary); font-weight: 600; }
+        .alert { padding: 12px; background: rgba(34,197,94,0.1); color: var(--success); border-radius: 6px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">E-Cops Intelligence</div>
+        <a href="/dashboard" class="nav-link">← Back to Dashboard</a>
+        <a href="/officer/intelligence" class="nav-link active">Intelligence Search</a>
+        <a href="/officer/forum" class="nav-link">Internal Forum</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Intelligence Database Search</h1>
+            <p style="color: var(--text-muted);">Search across all recorded cases, FIR details, and charge sheets.</p>
+        </div>
+        
+        <form th:action="@{/officer/intelligence}" method="get" class="search-container">
+            <input type="text" name="q" class="search-input" th:value="${query}" placeholder="Search keywords, suspect names, vehicle numbers..." required>
+            <button type="submit" class="btn">Search Database</button>
+        </form>
+
+        <div th:if="${query != null}">
+            <h3 style="margin-bottom: 15px;">Search Results for "<span class="highlight" th:text="${query}"></span>"</h3>
+            
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Case ID</th>
+                            <th>Station</th>
+                            <th>Incident Title</th>
+                            <th>Status / Warrant</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${results}">
+                            <td th:text="'CASE-' + ${c.id}">ID</td>
+                            <td th:text="${c.complaint.policeStation.name}">Station</td>
+                            <td th:text="${c.complaint.title}">Title</td>
+                            <td>
+                                <span th:text="${c.complaint.status}">Status</span> / 
+                                <span th:text="${c.warrantStatus}">Warrant</span>
+                            </td>
+                            <td th:text="${#dates.format(c.lastUpdated, 'MMM dd, yyyy')}">Date</td>
+                            <td><a th:href="@{/officer/cases/{id}(id=${c.id})}" style="color: var(--primary); text-decoration: none;">View File</a></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(results)}">
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                No matching records found in the intelligence database.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
